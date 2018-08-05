@@ -12,6 +12,8 @@ import java.util.*
 @RequestMapping("api/book")
 class BookController (private val bookDAO: BookDAO){
     @GetMapping fun getAll(pageable: Pageable): Page<Book> = bookDAO.findAll(pageable)
+
     @GetMapping("{isbn}") fun getByISBN(@PathVariable isbn:String): Optional<Book> = bookDAO.findById(isbn)
-    @PostMapping fun insert(@RequestBody book:Book): Book = bookDAO.insert(book)
+
+    @PostMapping fun insert(@RequestBody book: Book): Book = bookDAO.insert(book)
 }
