@@ -15,14 +15,14 @@ class BookService(val bookDAO: BookDAO,private val authorDAO: AuthorDAO):BasicCr
 
     override fun getById(id: String): Optional<Book> = bookDAO.findById(id)
 
+    override fun insert(obj: Book): Book = bookDAO.insert(obj.apply { this.author = authorDAO.findById(obj.author.id).get() })//re-insert author from db to avoid inconsistency
+
     @Throws(Exception::class)
-    override fun insertOrUpdate(obj: Book): Book{
-        val author = authorDAO.findById(obj.author.id)//re-insert author from db to avoid inconsistency
-        return if(author.isPresent){
-            obj.author = author.get()
-            bookDAO.insert(obj)
+    override fun update(obj: Book): Book{
+        return if(bookDAO.existsById(obj.isbn)){//check if book exists because the save method will insert a record if does not exists
+            bookDAO.save(obj.apply { this.author = authorDAO.findById(obj.author.id).get() })//re-insert author from db to avoid inconsistency
         }else{
-            throw object: Exception("Author not found"){}
+            throw object: Exception("Book not found"){}
         }
     }
 

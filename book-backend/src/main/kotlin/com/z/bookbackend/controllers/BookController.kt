@@ -25,9 +25,11 @@ class BookController (private val bookService: BookService) {//injects bookServi
     @ApiOperation(value = "Get book by name regex",produces = "application/json;charset=UTF-8")
     @GetMapping("/byName/{regex}") fun getByName(@PathVariable regex:String):List<Book> = bookService.bookDAO.findByNameRegex(regex)
 
-    @ApiOperation(value = "Insert or Update book",produces = "application/json;charset=UTF-8")
-    @RequestMapping(method = [RequestMethod.POST,RequestMethod.PUT])// admit both methods
-    fun insertOrUpdate(@RequestBody book: Book): Book = bookService.insertOrUpdate(book)
+    @ApiOperation(value = "Insert a book",produces = "application/json;charset=UTF-8")
+    @PostMapping fun insert(@RequestBody book: Book): Book = bookService.insert(book)
+
+    @ApiOperation(value = "Update a book",produces = "application/json;charset=UTF-8")
+    @PutMapping fun update(@RequestBody book: Book): Book = bookService.update(book)
 
     @ApiOperation(value = "Delete book by isbn",produces = "application/json;charset=UTF-8")
     @DeleteMapping("{isbn}")  fun deleteByIsbn(@PathVariable isbn: String): Optional<Book> = bookService.deleteById(isbn)
