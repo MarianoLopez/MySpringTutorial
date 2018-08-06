@@ -29,5 +29,5 @@ class AuthorController(private val authorService: AuthorService){//injects bookS
     @PutMapping fun update(@RequestBody author: Author): Author = authorService.update(author)
 
     @ApiOperation(value = "Delete author by id (will delete his books in cascade)",produces = "application/json;charset=UTF-8")
-    @DeleteMapping  fun deleteById(id: String): Optional<Author>  = authorService.deleteById(id)
+    @DeleteMapping("{id}")  fun deleteById(@PathVariable id: String): Optional<Author>  = authorService.deleteById(id)
 }
