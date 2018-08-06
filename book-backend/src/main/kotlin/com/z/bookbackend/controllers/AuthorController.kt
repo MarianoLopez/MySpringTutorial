@@ -1,42 +1,31 @@
 package com.z.bookbackend.controllers
 
 import com.z.bookbackend.models.Author
-import com.z.bookbackend.services.AuthorDAO
-import com.z.bookbackend.util.BasicCrud
+import com.z.bookbackend.services.AuthorService
+import io.swagger.annotations.ApiImplicitParam
+import io.swagger.annotations.ApiImplicitParams
+import io.swagger.annotations.ApiOperation
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.web.bind.annotation.*
 import java.util.*
 
 
-@RestController
-@RequestMapping("api/author")
-class AuthorController(private val authorDAO: AuthorDAO):BasicCrud<String,Author> {
+@RestController//declare this class as rest controller able to catch http request
+@RequestMapping("api/author")//controller root path
+class AuthorController(private val authorService: AuthorService){//injects bookService by constructor
 
-    @GetMapping override fun getAll(pageable: Pageable): Page<Author> = authorDAO.findAll(pageable)
+    @ApiImplicitParams(ApiImplicitParam(name = "Pageable",value = "Optional pageable request: page=&size=&sort=example.ASC|DESC",required = false, dataType = "string", paramType = "query"))
+    @ApiOperation(value = "Get all authors",produces = "application/json;charset=UTF-8")
+    @GetMapping fun getAll(pageable: Pageable): Page<Author> = authorService.getAll(pageable)
 
-    @GetMapping("{id}") override fun getById(@PathVariable id:String): Optional<Author> = authorDAO.findById(id)
+    @ApiOperation(value = "Get author by id",produces = "application/json;charset=UTF-8")
+    @GetMapping("{id}")  fun getById(@PathVariable id:String): Optional<Author> = authorService.getById(id)
 
-    @PostMapping override fun insert(@RequestBody obj: Author): Author{
-        return if(obj.id.isNullOrBlank()){
-            authorDAO.insert(obj)
-        }else{
-            throw object : Exception("ID must be null or empty"){}
-        }
-    }
+    @ApiOperation(value = "Insert (when id is null) or Update author (will update his books in cascade)",produces = "application/json;charset=UTF-8")
+    @RequestMapping(method = [RequestMethod.POST,RequestMethod.PUT])// admit both methods
+    fun insertOrUpdate(@RequestBody author: Author): Author = authorService.insertOrUpdate(author)
 
-
-    @PutMapping override fun update(obj: Author): Author {
-        return if(obj.id.isNullOrBlank()){
-            throw object : Exception("ID must not be null or empty"){}
-        }else{
-            authorDAO.insert(obj) //TODO: update all books of the updated author
-        }
-    }
-
-    @DeleteMapping override fun deleteById(id: String): Optional<Author> {
-        return authorDAO.findById(id).apply {
-            this.ifPresent { authorDAO.delete(it) } //TODO: delete all books of the deleted author
-        }
-    }
+    @ApiOperation(value = "Delete author by id (will delete his books in cascade)",produces = "application/json;charset=UTF-8")
+    @DeleteMapping  fun deleteById(id: String): Optional<Author>  = authorService.deleteById(id)
 }

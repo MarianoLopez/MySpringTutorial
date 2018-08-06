@@ -7,4 +7,4 @@ import java.time.LocalDate
 
 @Document data class Author(@Id val id:String? = null, val name:String, val birthDate:LocalDate)
 
-@Document data class Book(@Id val isbn:String, val name:String, val author: Author, val publishedYear:Int)
+@Document data class Book(@Id val isbn:String, val name:String, var author: Author, val publishedYear:Int)

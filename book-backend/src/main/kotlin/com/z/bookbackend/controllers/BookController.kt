@@ -1,29 +1,34 @@
 package com.z.bookbackend.controllers
 
 import com.z.bookbackend.models.Book
-import com.z.bookbackend.services.BookDAO
-import com.z.bookbackend.util.BasicCrud
+import com.z.bookbackend.services.BookService
+import io.swagger.annotations.ApiImplicitParam
+import io.swagger.annotations.ApiImplicitParams
+import io.swagger.annotations.ApiOperation
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.web.bind.annotation.*
 import java.util.*
 
 
-@RestController
-@RequestMapping("api/book")
-class BookController (private val bookDAO: BookDAO): BasicCrud<String, Book> {
+@RestController//declare this class as rest controller able to catch http request
+@RequestMapping("api/book")//controller root path
+class BookController (private val bookService: BookService) {//injects bookService by constructor
 
-    @GetMapping override fun getAll(pageable: Pageable): Page<Book> = bookDAO.findAll(pageable)
+    @ApiImplicitParams(ApiImplicitParam(name = "Pageable",value = "Optional pageable request: page=&size=&sort=example.ASC|DESC",required = false, dataType = "string", paramType = "query"))
+    @ApiOperation(value = "Get all books",produces = "application/json;charset=UTF-8")
+    @GetMapping fun getAll(pageable: Pageable): Page<Book> = bookService.getAll(pageable)
 
-    @GetMapping("{id}") override fun getById(@PathVariable id:String): Optional<Book> = bookDAO.findById(id)
+    @ApiOperation(value = "Get book by isbn",produces = "application/json;charset=UTF-8")
+    @GetMapping("{isbn}") fun getByIsbn(@PathVariable isbn:String): Optional<Book> = bookService.getById(isbn)
 
-    @PostMapping override fun insert(@RequestBody obj: Book): Book = bookDAO.insert(obj)
+    @ApiOperation(value = "Get book by name regex",produces = "application/json;charset=UTF-8")
+    @GetMapping("/byName/{regex}") fun getByName(@PathVariable regex:String):List<Book> = bookService.bookDAO.findByNameRegex(regex)
 
-    @PutMapping override fun update(@RequestBody obj: Book): Book = bookDAO.insert(obj) //TODO: re-insert author from db to avoid inconsistency
+    @ApiOperation(value = "Insert or Update book",produces = "application/json;charset=UTF-8")
+    @RequestMapping(method = [RequestMethod.POST,RequestMethod.PUT])// admit both methods
+    fun insertOrUpdate(@RequestBody book: Book): Book = bookService.insertOrUpdate(book)
 
-    @DeleteMapping("{id}") override fun deleteById(id: String): Optional<Book> {
-        return bookDAO.findById(id).apply {
-            this.ifPresent { bookDAO.delete(it) }
-        }
-    }
+    @ApiOperation(value = "Delete book by isbn",produces = "application/json;charset=UTF-8")
+    @DeleteMapping("{isbn}")  fun deleteByIsbn(@PathVariable isbn: String): Optional<Book> = bookService.deleteById(isbn)
 }

@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component
 
 @Component
 class OnBoot(private val bookDAO: BookDAO, private val authorDAO: AuthorDAO):ApplicationRunner {
-    /* This will run after springboot start*/
+    /* This will run after springboot full load*/
     override fun run(args: ApplicationArguments?) {
         if(bookDAO.count()<1) this.createBooks()
     }
