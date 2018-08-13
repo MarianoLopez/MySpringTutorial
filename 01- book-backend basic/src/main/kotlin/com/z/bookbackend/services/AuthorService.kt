@@ -21,9 +21,7 @@ class AuthorService(private val authorDAO: AuthorDAO, private val bookDAO: BookD
         return if(authorDAO.existsById(obj.id)){//check if author exists because the save method will insert a record if does not exists
             authorDAO.save(obj).apply { //update author
                 obj.id?.let { //if does has Id then
-                    val booksToUpdate = bookDAO.findByAuthorId(it)//find all his books
-                    booksToUpdate.forEach{ it.author = this }//update the books with the current author changes
-                    bookDAO.saveAll(booksToUpdate)//save book changes
+                    bookDAO.saveAll(bookDAO.findByAuthorId(it).map { it.also { it.author=this } })//update all his books
                 }
             }
         }else{
